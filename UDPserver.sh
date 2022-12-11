@@ -667,6 +667,7 @@ QUIC_SCRIPT(){
 	[[ $UNINS != @(S|s) ]] && return
 	systemctl disable UDPserver &>/dev/null
 	systemctl stop UDPserver &>/dev/null
+	rm /etc/systemd/system/UDPserver.service
 	rm /usr/bin/udpServer
 	rm /usr/bin/udp
 	rm -rf $udp_file
