@@ -703,7 +703,7 @@ menu_udp(){
 		echo " $(msg -verd "[8]") $(msg -verm2 '>') $(msg -azu 'LIMITADO DE CUENTAS')"
 		msg -bar3
 		echo " $(msg -verd "[9]") $(msg -verm2 '>') $(msg -azu 'REOMOVER SCRIPT')"
-		num=8; a=x; b=1
+		num=9; a=x; b=1
 	else
 		echo " $(msg -verd "[1]") $(msg -verm2 '>') $(msg -verd 'INSTALAR UDPserver')"
 		num=1; a=1; b=x
