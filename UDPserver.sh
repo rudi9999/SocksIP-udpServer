@@ -678,7 +678,7 @@ QUIC_SCRIPT(){
 }
 
 menu_udp(){
-	title 'SCRIPT DE CONFIGRACION UDPserver BY @Rufu99'
+	title 'SCRIPT DE CONFIGURACION UDPserver BY @Rufu99'
 	print_center -ama 'UDPserver Binary by team newtoolsworks'
 	print_center -ama 'UDPclient Android SocksIP'
 	msg -bar
