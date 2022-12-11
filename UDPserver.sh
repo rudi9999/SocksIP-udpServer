@@ -35,6 +35,8 @@ if [[ ! -e $udp_file/UDPserver.sh ]]; then
 	source /etc/os-release
 	repo_install
 	apt update -y && apt upgrade -y
+	ufw disable
+	apt remove netfilter-persistent -y
 	cp $(pwd)/$0 $udp_file/UDPserver.sh
 	chmod +x $udp_file/UDPserver.sh
 	rm $(pwd)/$0 &> /dev/null
