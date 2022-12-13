@@ -22,7 +22,26 @@ time_reboot(){
   reboot
 }
 
+check_sistem(){
+  fail(){
+    clear
+    echo -e "\e[1m\e[31m=====================================================\e[0m"
+    echo -e "\e[1m\e[33meste script no es compatible con tu systema operativo\e[0m"
+    echo -e "\e[1m\e[33m              Usa Ubuntu 20 o superior\e[0m"
+    echo -e "\e[1m\e[31m=====================================================\e[0m"
+    exit
+  }
+  VER=$(echo $VERSION_ID|awk -F '.' '{print $1}')
+  if [[ ! $NAME = 'Ubuntu' ]]; then
+    fail
+  elif [[ $VER -lt 20 ]]; then
+      fail
+  fi
+}
+
 if [[ ! -e $udp_file/UDPserver.sh ]]; then
+  source /etc/os-release
+  check_sistem
 	mkdir $udp_file
 	chmod -R +x $udp_file
 	wget -O $udp_file/module 'https://raw.githubusercontent.com/rudi9999/Herramientas/main/module/module' &>/dev/null
@@ -32,7 +51,6 @@ if [[ ! -e $udp_file/UDPserver.sh ]]; then
 	chmod +x $udp_file/limitador.sh
 	echo '/etc/UDPserver/UDPserver.sh' > /usr/bin/udp
 	chmod +x /usr/bin/udp
-	source /etc/os-release
 	repo_install
 	apt update -y && apt upgrade -y
 	ufw disable
@@ -678,7 +696,7 @@ QUIC_SCRIPT(){
 }
 
 menu_udp(){
-	title 'SCRIPT DE CONFIGURACION UDPserver BY @Rufu99'
+	title 'SCRIPT DE CONFIGRACION UDPserver BY @Rufu99'
 	print_center -ama 'UDPserver Binary by team newtoolsworks'
 	print_center -ama 'UDPclient Android SocksIP'
 	msg -bar
