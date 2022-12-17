@@ -664,7 +664,7 @@ exclude(){
   else
     Port=" -exclude=$(echo "$Port"|sed "s/ /,/g"|sed 's/,//')"
   fi
-  mag -bar3
+  msg -bar3
 }
 
 install_UDP(){
@@ -835,17 +835,19 @@ menu_udp(){
 	print_center -ama 'UDPserver Binary by team newtoolsworks'
 	print_center -ama 'UDPclient Android SocksIP'
 	msg -bar
-  port=$(cat /etc/systemd/system/UDPserver.service|grep 'exclude')
-  if [[ ! $port = "" ]]; then
-    port=$(echo $port|awk '{print $4}'|cut -d '=' -f2|sed 's/,/ /g')
-    print_center -ama "PUERTOS EXCLUIDOS $port"
-    msg -bar
-  fi
-	ram=$(printf '%-8s' "$(free -m | awk 'NR==2{printf "%.2f%%", $3*100/$2 }')")
-	cpu=$(printf '%-1s' "$(top -bn1 | awk '/Cpu/ { cpu = "" 100 - $8 "%" }; END { print cpu }')")
-	echo " $(msg -verd 'IP:') $(msg -azu "$ip_publica")  $(msg -verd 'Ram:') $(msg -azu "$ram") $(msg -verd 'CPU:') $(msg -azu "$cpu")"
-	msg -bar
+  
 	if [[ $(type -p udpServer) ]]; then
+    port=$(cat /etc/systemd/system/UDPserver.service|grep 'exclude')
+    if [[ ! $port = "" ]]; then
+      port=$(echo $port|awk '{print $4}'|cut -d '=' -f2|sed 's/,/ /g')
+      print_center -ama "PUERTOS EXCLUIDOS $port"
+      msg -bar
+    fi
+    ram=$(printf '%-8s' "$(free -m | awk 'NR==2{printf "%.2f%%", $3*100/$2 }')")
+    cpu=$(printf '%-1s' "$(top -bn1 | awk '/Cpu/ { cpu = "" 100 - $8 "%" }; END { print cpu }')")
+    echo " $(msg -verd 'IP:') $(msg -azu "$ip_publica")  $(msg -verd 'Ram:') $(msg -azu "$ram") $(msg -verd 'CPU:') $(msg -azu "$cpu")"
+    msg -bar
+
 		if [[ $(systemctl is-active UDPserver) = 'active' ]]; then
 			estado="\e[1m\e[32m[ON]"
 		else
