@@ -1,2 +1,2 @@
-list_lang=(en_us)
+list_lang=(en_US)
 listarq='UDPserver'
