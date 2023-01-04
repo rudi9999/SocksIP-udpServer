@@ -10,6 +10,6 @@ UDPserver Binary by team newtoolsworks :point_right: [AQUI](https://bitbucket.or
 
 UDPclient Android SocksIP :point_right: [AQUI](https://play.google.com/store/apps/details?id=com.newtoolsworks.sockstunnel)
 
-# para colaborar con la traduccion en su idioma, contactar con :point_right: [@Rufu99](https://t.me/Rufu99)
+para colaborar con la traduccion en su idioma, contactar con :point_right: [@Rufu99](https://t.me/Rufu99)
 
-# To collaborate with the translation in your language, contact :point_right: [@Rufu99](https://t.me/Rufu99)
+To collaborate with the translation in your language, contact :point_right: [@Rufu99](https://t.me/Rufu99)
