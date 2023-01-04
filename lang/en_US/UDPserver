@@ -14,3 +14,137 @@ a12='PORT EXCLUSION'
 a13='ADD PORT TO EXCLUSION LIST'
 a14='REMOVE PORT FROM EXCLUSION LIST'
 a15='INSTALL UDPserver'
+
+# install_UDP
+a16='UDPserver INSTALLATION'
+a17='installation complete'
+a18='fail to run service'
+a19='Failed to download udpServer binary'
+
+# exclude
+a20='Exclude UDP ports'
+a21='UDPserver covers the full range of ports'
+a22='you can exclude UDP ports'
+a23='Examples of ports to exclude'
+a24='enter the ports separated by spaces'
+a25='Example'
+a26='type ports or enter skip'
+a27='port to exclude'
+a28='not a port'
+a29='no ports excluded'
+
+# download_udpServer
+a30='Downloading UDPserver binary'
+
+# make_service
+a31='Running UDPserver service'
+
+# uninstall_UDP
+a32='UNINSTALLER UDPserver'
+a33='DO YOU WANT TO UNINSTALL UDPserver? [Y/N]'
+a34='full uninstall!'
+
+# reset
+a35='UDPserver stopped!'
+a36='UDPserver started!'
+a37='Failed to start UDPserver!'
+
+# QUIC_SCRIPT
+a38='UDPserver SCRIPT UNINSTALLER'
+a39='DO YOU WANT TO UNINSTALL THE UDPserver SCRIPT? [Y/N]'
+a40='COMPLETE UNINSTALL'
+
+# new_user
+a41='Username'
+a42='User Password'
+a43='Duration time'
+a44='Connection Limit'
+a45='User Created Successfully'
+a46='Error, User not created'
+a47='Server IP'
+a48='User'
+a49='Password'
+a50='Duration days'
+a51='Expiration date'
+
+# remove_user
+a56='removed'
+a57='not removed'
+
+# renew_user
+a58='New Duration Time'
+
+# block_user
+a59='Select'
+a60='locked'
+a61='unlocked'
+
+# detail_user
+a62='No registered user'
+a63='DETAILS OF THE USERS'
+
+# limiter
+a64='MULTI-LOGIN LIMITER'
+a65='EXPIRED LIMITER'
+a66='LIMITER LOG'
+a67='option'
+a68='limiter stopped'
+a69='SET LIMITER'
+a70='Block users when they exceed'
+a71='the maximum number of connections'
+a72='Run limitor every'
+a73='Only numbers are allowed'
+a74='minimum time 1 minute'
+a75='Run limitor every'
+a76='minutes'
+a77='Users blocked by limiter\nthey will be unlocked automatically\n(enter 0 for manual unlock)'
+a78='Unblock users every'
+a79='unlock'
+a80='manual'
+a81='running limiter'
+a82='programmed expire limiter\nIt will run every day at 1:00 a.m.\naccording to the time scheduled on the server'
+a83='expired limiter stopped'
+a84='LIMITER REGISTRATION'
+a85='no register limiter'
+a86='Press enter to continue or'
+a87='0 to clear record'
+
+# quit_exclude
+a88='REMOVE EXCLUSION PORT'
+a89='RETURN'
+a90='REMOVE ALL'
+a91='Removed all excluded ports'
+
+# data_user
+a96='NO REGISTERED SSH USERS'
+a97='Date'
+a98='Day'
+a99='unknown'
+
+# renew_user_fun
+a100='Successfully Renewed User'
+a101='Error, User not Renewed'
+
+# otro
+a52='Write or Select a User'
+a53='Select An Option'
+a54='Error, Invalid User'
+a55='Selected User'
+a92='RESTARTING VPS IN'
+a93='SECONDS'
+a94='this script is not compatible with your operating system'
+a95='Use Ubuntu 20 or higher'
+a102='INSTALLATION COMPLETE'
+a103='use the command\nudp\nto run the menu'
+
+
+
+
+
+
+
+
+
+
+
+
