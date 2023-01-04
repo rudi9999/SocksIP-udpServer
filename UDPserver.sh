@@ -1,6 +1,34 @@
 #!/bin/bash
 
 udp_file='/etc/UDPserver'
+lang_dir="$udp_file/lang"
+lang="$lang_dir/lang"
+
+idioam_lang(){
+  source <(curl -sSl 'https://raw.githubusercontent.com/rudi9999/SocksIP-udpServer/main/lang/lang')
+  title -ama 'IDIOMA/LANGUAGE'
+  echo " $(msg -verd "[0]") $(msg -verm2 '>') $(msg -azu "Español Default")"
+  n=0
+  for (( i = 0; i < ${#list_lang[@]}; i++ )); do
+    let n++
+    case ${list_lang[$i]} in
+      en_US)l='English';;
+    esac
+    echo " $(msg -verd "[$n]") $(msg -verm2 '>') $(msg -azu "$l")"
+  done
+  msg -bar
+  lg=$(selection_fun $n)
+  [[ $lg = 0 ]] && echo '' > $lang && return 1
+  let lg-- 
+  [[ ! -d $lang_dir/${list_lang[$lg]} ]] && mkdir -p $lang_dir/${list_lang[$lg]} || rm -rf $lang_dir/${list_lang[$lg]}/*
+  for arch in $listarq; do
+    if ! wget -O $lang_dir/${list_lang[$lg]}/$arch "https://raw.githubusercontent.com/rudi9999/SocksIP-udpServer/main/lang/${list_lang[$lg]}/$arch" &>/dev/null ;then
+      rm -rf $lang_dir/${list_lang[$lg]}
+      echo '' > $lang ; exit
+    fi
+  done
+  echo "${list_lang[$lg]}" > $lang
+}
 
 repo_install(){
   link="https://raw.githubusercontent.com/rudi9999/ADMRufu/main/Repositorios/$VERSION_ID.list"
@@ -11,7 +39,7 @@ repo_install(){
 }
 
 time_reboot(){
-  print_center -ama "REINICIANDO VPS EN $1 SEGUNDOS"
+  print_center -ama "${a92:-REINICIANDO VPS EN} $1 ${a93:-SEGUNDOS}"
   REBOOT_TIMEOUT="$1"
   
   while [ $REBOOT_TIMEOUT -gt 0 ]; do
@@ -26,8 +54,8 @@ check_sistem(){
   fail(){
     clear
     echo -e "\e[1m\e[31m=====================================================\e[0m"
-    echo -e "\e[1m\e[33meste script no es compatible con tu systema operativo\e[0m"
-    echo -e "\e[1m\e[33m              Usa Ubuntu 20 o superior\e[0m"
+    echo -e "\e[1m\e[33m${a94:-este script no es compatible con tu systema operativo}\e[0m"
+    echo -e "\e[1m\e[33m              ${a95:-Usa Ubuntu 20 o superior}\e[0m"
     echo -e "\e[1m\e[31m=====================================================\e[0m"
     exit
   }
@@ -35,18 +63,22 @@ check_sistem(){
   if [[ ! $NAME = 'Ubuntu' ]]; then
     fail
   elif [[ $VER -lt 20 ]]; then
+    rm -rf $udp_file
       fail
   fi
 }
 
 if [[ ! -e $udp_file/UDPserver.sh ]]; then
+  mkdir $udp_file
+  chmod -R +x $udp_file
+  source <(curl -sSL 'https://raw.githubusercontent.com/rudi9999/Herramientas/main/module/module')
+  idioam_lang
+  [[ -e $lang ]] && newlang=$(cat $lang) && [[ ! $newlang = '' ]] && source $udp_file/lang/$newlang/UDPserver
   source /etc/os-release
   check_sistem
-	mkdir $udp_file
-	chmod -R +x $udp_file
 	wget -O $udp_file/module 'https://raw.githubusercontent.com/rudi9999/Herramientas/main/module/module' &>/dev/null
 	chmod +x $udp_file/module
-	source $udp_file/module
+	#source $udp_file/module
 	wget -O $udp_file/limitador.sh "https://raw.githubusercontent.com/rudi9999/SocksIP-udpServer/main/limitador.sh" &>/dev/null
 	chmod +x $udp_file/limitador.sh
 	echo '/etc/UDPserver/UDPserver.sh' > /usr/bin/udp
@@ -58,11 +90,13 @@ if [[ ! -e $udp_file/UDPserver.sh ]]; then
 	cp $(pwd)/$0 $udp_file/UDPserver.sh
 	chmod +x $udp_file/UDPserver.sh
 	rm $(pwd)/$0 &> /dev/null
-	title 'INSTALACION COMPLETA'
-	print_center -ama "Use el comando\nudp\npara ejecutar el menu"
+	title "${a102:-INSTALACION COMPLETA}"
+	print_center -ama "${a103:-Use el comando\nudp\npara ejecutar el menu}"
 	msg -bar
 	time_reboot 10
 fi
+
+[[ -e $lang ]] && newlang=$(cat $lang) && [[ ! $newlang = '' ]] && source $udp_file/lang/$newlang/UDPserver
 
 source $udp_file/module
 
@@ -72,8 +106,8 @@ ip_publica=$(grep -m 1 -oE '^[0-9]{1,3}(\.[0-9]{1,3}){3}$' <<< "$(wget -T 10 -t 
 
 data_user(){
 	cat_users=$(cat "/etc/passwd"|grep 'home'|grep 'false'|grep -v 'syslog'|grep -v '::/'|grep -v 'hwid\|token')
-	[[ -z "$(echo "${cat_users}"|head -1)" ]] && print_center -verm2 "NO HAY USUARIOS SSH REGISTRADOS" && return 1
-	dat_us=$(printf '%-13s%-14s%-10s%-4s%-6s%s' 'Usuario' 'Contraseña' 'Fecha' 'Dia' 'Limit' 'Statu')
+	[[ -z "$(echo "${cat_users}"|head -1)" ]] && print_center -verm2 "${a96:-NO HAY USUARIOS SSH REGISTRADOS}" && return 1
+  dat_us=$(printf '%-13s%-14s%-10s%-4s%-6s%s' "${a48:-Usuario}" "${a49:-Contraseña}" "${a97:-Fecha}" "${a98:-Dia}" 'Limit' 'Statu')
 	msg -azu "  $dat_us"
 	msg -bar
 
@@ -89,7 +123,7 @@ data_user(){
     us=$(printf '%-12s' "$u")
 
     pass=$(echo "$line"|awk -F ':' '{print $5}'|cut -d ',' -f2)
-    [[ "${#pass}" -gt '12' ]] && pass="Desconosida"
+    [[ "${#pass}" -gt '12' ]] && pass="${a99:-Desconosida}"
     pass="$(printf '%-12s' "$pass")"
 
     unset stat
@@ -137,60 +171,60 @@ limiter(){
 			if [[ ! $(at -c $i|grep 'limitador.sh') = "" ]]; then
 				atrm $i
 				sed -i '/limitador.sh/d' /var/spool/cron/crontabs/root
-				print_center -verd "limitador detenido"
+				print_center -verd "${a68:-limitador detenido}"
 				enter
 				return
 			fi
 		done
-    print_center -ama "CONF LIMITADOR"
+    print_center -ama "${a69:-CONFIGRAR LIMITADOR}"
     msg -bar
-    print_center -ama "Bloquea usuarios cuando exeden"
-    print_center -ama "el numero maximo conecciones"
+    print_center -ama "${a70:-Bloquea usuarios cuando exeden}"
+    print_center -ama "${a71:-el numero maximo conecciones}"
     msg -bar
     unset opcion
     while [[ -z $opcion ]]; do
-      msg -nama " Ejecutar limitdor cada: "
+      msg -nama " ${a72:-Ejecutar limitdor cada}: "
       read opcion
       if [[ ! $opcion =~ $numero ]]; then
         del 1
-        print_center -verm2 " Solo se admiten nuemros"
+        print_center -verm2 " ${a73:-Solo se admiten nuemros}"
         sleep 2
         del 1
         unset opcion && continue
       elif [[ $opcion -le 0 ]]; then
         del 1
-        print_center -verm2 "tiempo minimo 1 minuto"
+        print_center -verm2 "${a74:-tiempo minimo 1 minuto}"
         sleep 2
         del 1
         unset opcion && continue
       fi
       del 1
-      echo -e "$(msg -nama " Ejecutar limitdor cada:") $(msg -verd "$opcion minutos")"
+      echo -e "$(msg -nama " ${a75:-Ejecutar limitdor cada}:") $(msg -verd "$opcion ${a76:-minutos}")"
       echo "$opcion" > ${udp_file}/limit
     done
 
     msg -bar
-    print_center -ama "Los usuarios bloqueados por el limitador\nseran desbloqueado automaticamente\n(ingresa 0 para desbloqueo manual)"
+    print_center -ama "${a77:-Los usuarios bloqueados por el limitador\nseran desbloqueado automaticamente\n(ingresa 0 para desbloqueo manual)}"
     msg -bar
 
     unset opcion
     while [[ -z $opcion ]]; do
-      msg -nama " Desbloquear user cada: "
+      msg -nama " ${a78:-Desbloquear usuarios cada}: "
       read opcion
       if [[ ! $opcion =~ $numero ]]; then
         tput cuu1 && tput dl1
-        print_center -verm2 " Solo se admiten nuemros"
+        print_center -verm2 " ${a73:-Solo se admiten nuemros}"
         sleep 2
         tput cuu1 && tput dl1
         unset opcion && continue
       fi
       tput cuu1 && tput dl1
-      [[ $opcion -le 0 ]] && echo -e "$(msg -nama " Desbloqueo:") $(msg -verd "manual")" || echo -e "$(msg -nama " Desbloquear user cada:") $(msg -verd "$opcion minutos")"
+      [[ $opcion -le 0 ]] && echo -e "$(msg -nama " ${a79:-Desbloqueo}:") $(msg -verd "${a80:-manual}")" || echo -e "$(msg -nama " ${a78:-Desbloquear usuarios cada}:") $(msg -verd "$opcion ${a76:-minutos}")"
       echo "$opcion" > ${udp_file}/unlimit
     done
 		nohup ${udp_file}/limitador.sh &>/dev/null &
     msg -bar
-		print_center -verd "limitador en ejecucion"
+		print_center -verd "${a81:-limitador en ejecucion}"
 		enter	
 	}
 
@@ -200,33 +234,31 @@ limiter(){
     	l_cron=$(cat /var/spool/cron/crontabs/root|grep -w 'limitador.sh'|grep -w 'ssh')
     	if [[ -z "$l_cron" ]]; then
       		echo '0 1 * * * /etc/UDPserver/limitador.sh --ssh' >> /var/spool/cron/crontabs/root
-      		print_center -verd "limitador de expirados programado\nse ejecutara todos los dias a la 1hs am\nsegun la hora programada en el servidor"
-      		enter
-      		return
+      		print_center -verd "${a82:-limitador de expirados programado\nse ejecutara todos los dias a la 1hs am\nsegun la hora programada en el servidor}"
     	else
       		sed -i '/limitador.sh --ssh/d' /var/spool/cron/crontabs/root
-      		print_center -verm2 "limitador de expirados detenido" 
-      		enter
-      		return   
+      		print_center -verm2 "${a83:-limitador de expirados detenido}"   
     	fi
+      enter
+      return
 	}
 
 	log(){
 		clear
 		msg -bar
-		print_center -ama "REGISTRO DEL LIMITADOR"
+		print_center -ama "${a84:-REGISTRO DEL LIMITADOR}"
 		msg -bar
 		[[ ! -e ${udp_file}/limit.log ]] && touch ${udp_file}/limit.log
 		if [[ -z $(cat ${udp_file}/limit.log) ]]; then
-			print_center -ama "no ahy registro de limitador"
+			print_center -ama "${a85:-no ahy registro de limitador}"
 			msg -bar
 			sleep 2
 			return
 		fi
 		msg -teal "$(cat ${udp_file}/limit.log)"
 		msg -bar
-		print_center -ama "►► Presione enter para continuar o ◄◄"
-		print_center -ama "►► 0 para limpiar registro ◄◄"
+		print_center -ama "►► ${a86:-Presione enter para continuar o} ◄◄"
+		print_center -ama "►► ${a87:-0 para limpiar registro} ◄◄"
 		read opcion
 		[[ $opcion = "0" ]] && echo "" > ${udp_file}/limit.log
 	}
@@ -235,11 +267,11 @@ limiter(){
 
 	clear
 	msg -bar
-	print_center -ama "LIMITADOR DE CUENTAS"
+	print_center -ama "${a11:-LIMITADOR DE CUENTAS}"
 	msg -bar
-	menu_func "LIMTADOR MULTI-LOGIN" "LIMITADOR EXPIRADOS $lim_e" "LOG DEL LIMITADOR"
+	menu_func "${a64:-LIMITADOR MULTI-LOGIN}" "${a65:-LIMITADOR EXPIRADOS} $lim_e" "${a66:-LOG DEL LIMITADOR}"
 	back
-	msg -ne " opcion: "
+	msg -ne " ${a67:-opcion}: "
 	read opcion
 	case $opcion in
 		1)ltr;;
@@ -256,13 +288,13 @@ detail_user(){
 	usuarios_ativos=('' $(mostrar_usuarios))
 	if [[ -z ${usuarios_ativos[@]} ]]; then
 		msg -bar
-		print_center -verm2 "Ningun usuario registrado"
+		print_center -verm2 "${a62:-Ningun usuario registrado}"
 		msg -bar
 		sleep 3
 		return
 	else
 		msg -bar
-		print_center -ama "DETALLES DEL LOS USUARIOS"
+		print_center -ama "${a63:-DETALLES DEL LOS USUARIOS}"
 		msg -bar
 	fi
 	data_user
@@ -276,16 +308,16 @@ block_user(){
   clear
   usuarios_ativos=('' $(mostrar_usuarios))
   msg -bar
-  print_center -ama "BLOQUEAR/DESBLOQUEAR USUARIOS"
+  print_center -ama "${a9:-BLOQUEAR/DESBLOQUEAR USUARIOS}"
   msg -bar
   data_user
   back
 
-  print_center -ama "Escriba o Seleccione Un Usuario"
+  print_center -ama "${a52:-Escriba o Seleccione un Usuario}"
   msg -bar
   unset selection
   while [[ ${selection} = "" ]]; do
-    echo -ne "\033[1;37m Seleccione: " && read selection
+    echo -ne "\033[1;37m ${a59:-Seleccione}: " && read selection
     del 1
   done
   [[ ${selection} = "0" ]] && return
@@ -295,17 +327,17 @@ block_user(){
     usuario_del="$selection"
   fi
   [[ -z $usuario_del ]] && {
-    msg -verm "Error, Usuario Invalido"
+    msg -verm "${a54:-Error, Usuario Invalido}"
     msg -bar
     return 1
   }
   [[ ! $(echo ${usuarios_ativos[@]}|grep -w "$usuario_del") ]] && {
-    msg -verm "Error, Usuario Invalido"
+    msg -verm "${a54:-Error, Usuario Invalido}"
     msg -bar
     return 1
   }
 
-  msg -nama "   $(fun_trans "Usuario"): $usuario_del >>>> "
+  msg -nama "   ${a48:-Usuario}: $usuario_del >>>> "
 
   if [[ $(passwd --status $usuario_del|cut -d ' ' -f2) = "P" ]]; then
     pkill -u $usuario_del &>/dev/null
@@ -313,11 +345,11 @@ block_user(){
     kill -9 $droplim &>/dev/null
     usermod -L $usuario_del &>/dev/null
     sleep 2
-    msg -verm2 "Bloqueado"
+    msg -verm2 "${a60:-Bloqueado}"
   else
   	usermod -U $usuario_del
   	sleep 2
-  	msg -verd "Desbloqueado"
+  	msg -verd "${a61:-Desbloqueado}"
   fi
   msg -bar
   sleep 3
@@ -329,9 +361,9 @@ renew_user_fun(){
   #nome dias
   datexp=$(date "+%F" -d " + $2 days") && valid=$(date '+%C%y-%m-%d' -d " + $2 days")
   if chage -E $valid $1 ; then
-  	print_center -ama "Usuario Renovado Con Exito"
+  	print_center -ama "${a100:-Usuario Renovado Con Exito}"
   else
-  	print_center -verm "Error, Usuario no Renovado"
+  	print_center -verm "${a101:-Error, Usuario no Renovado}"
   fi
 }
 
@@ -339,16 +371,16 @@ renew_user(){
   clear
   usuarios_ativos=('' $(mostrar_usuarios))
   msg -bar
-  print_center -ama "RENOVAR USUARIOS"
+  print_center -ama "${a8:-RENOVAR USUARIOS}"
   msg -bar
   data_user
   back
 
-  print_center -ama "Escriba o seleccione un Usuario"
+  print_center -ama "${a52:-Escriba o Seleccione un Usuario}"
   msg -bar
   unset selection
   while [[ -z ${selection} ]]; do
-    msg -nazu "Seleccione una Opcion: " && read selection
+    msg -nazu "${a53:-Seleccione Una Opcion}: " && read selection
     del 1
   done
 
@@ -360,21 +392,21 @@ renew_user(){
   fi
 
   [[ -z $useredit ]] && {
-    msg -verm "Error, Usuario Invalido"
+    msg -verm "${a54:-Error, Usuario Invalido}"
     msg -bar
     sleep 3
     return 1
   }
 
   [[ ! $(echo ${usuarios_ativos[@]}|grep -w "$useredit") ]] && {
-    msg -verm "Error, Usuario Invalido"
+    msg -verm "${a54:-Error, Usuario Invalido}"
     msg -bar
     sleep 3
     return 1
   }
 
   while true; do
-    msg -ne "Nuevo Tiempo de Duracion de: $useredit"
+    msg -ne "${a58:-Nuevo Tiempo de Duracion de}: $useredit"
     read -p ": " diasuser
     if [[ -z "$diasuser" ]]; then
       echo -e '\n\n\n'
@@ -438,16 +470,16 @@ remove_user(){
 	clear
 	usuarios_ativos=('' $(mostrar_usuarios))
 	msg -bar
-	print_center -ama "REMOVER USUARIOS"
+	print_center -ama "${a7:-REMOVER USUARIOS}"
 	msg -bar
 	data_user
 	back
 
-	print_center -ama "Escriba o Seleccione un Usuario"
+	print_center -ama "${a52:-Escriba o Seleccione un Usuario}"
 	msg -bar
 	unset selection
 	while [[ -z ${selection} ]]; do
-		msg -nazu "Seleccione Una Opcion: " && read selection
+		msg -nazu "${a53:-Seleccione Una Opcion}: " && read selection
 		tput cuu1 && tput dl1
 	done
 	[[ ${selection} = "0" ]] && return
@@ -457,22 +489,22 @@ remove_user(){
 		usuario_del="$selection"
 	fi
 	[[ -z $usuario_del ]] && {
-		msg -verm "Error, Usuario Invalido"
+		msg -verm "${a54:-Error, Usuario Invalido}"
 		msg -bar
 		return 1
 	}
 	[[ ! $(echo ${usuarios_ativos[@]}|grep -w "$usuario_del") ]] && {
-		msg -verm "Error, Usuario Invalido"
+		msg -verm "${a54:-Error, Usuario Invalido}"
 		msg -bar
 		return 1
 	}
 
-	print_center -ama "Usuario Seleccionado: $usuario_del"
+	print_center -ama "${a55:-Usuario Seleccionado}: $usuario_del"
 	rm_user "$usuario_del"
   if [[ $msj = 0 ]] ; then
-    print_center -verd "[Removido]"
+    print_center -verd "[${a56:-Removido}]"
   else
-    print_center -verm "[No Removido]"
+    print_center -verm "[${a57:-No Removido}]"
   fi
   enter
 }
@@ -497,13 +529,13 @@ new_user(){
   clear
   usuarios_ativos=('' $(mostrar_usuarios))
   msg -bar
-  print_center -ama "CREAR CLIENTE"
+  print_center -ama "${a6:-CREAR CLIENTE}"
   msg -bar
   data_user
   back
 
   while true; do
-    msg -ne " Nombre Usuario: "
+    msg -ne " ${a41:-Nombre Usuario}: "
     read nomeuser
     nomeuser="$(echo $nomeuser|sed 'y/áÁàÀãÃâÂéÉêÊíÍóÓõÕôÔúÚñÑçÇªº/aAaAaAaAeEeEiIoOoOoOuUnNcCao/')"
     nomeuser="$(echo $nomeuser|sed -e 's/[^a-z0-9 -]//ig')"
@@ -522,7 +554,7 @@ new_user(){
   done
 
   while true; do
-    msg -ne " Contraseña De Usuario"
+    msg -ne " ${a42:-Contraseña De Usuario}"
     read -p ": " senhauser
     senhauser="$(echo $senhauser|sed 'y/áÁàÀãÃâÂéÉêÊíÍóÓõÕôÔúÚñÑçÇªº/aAaAaAaAeEeEiIoOoOoOuUnNcCao/')"
     if [[ -z $senhauser ]]; then
@@ -536,7 +568,7 @@ new_user(){
   done
 
   while true; do
-    msg -ne " Tiempo de Duracion"
+    msg -ne " ${a43:-Tiempo de Duracion}"
     read -p ": " diasuser
     if [[ -z "$diasuser" ]]; then
       err_fun 7 && continue
@@ -549,7 +581,7 @@ new_user(){
   done
 
   while true; do
-    msg -ne " Limite de Conexion"
+    msg -ne " ${a44:-Limite de Conexion}"
     read -p ": " limiteuser
     if [[ -z "$limiteuser" ]]; then
       err_fun 11 && continue
@@ -565,19 +597,19 @@ new_user(){
   clear
   msg -bar
   if [[ $msj = 0 ]]; then
-    print_center -verd "Usuario Creado con Exito"
+    print_center -verd "${a45:-Usuario Creado con Exito}"
   else
-    print_center -verm2 "Error, Usuario no creado"
+    print_center -verm2 "${a46:-Error, Usuario no creado}"
     enter
     return 1
   fi
   msg -bar
-  msg -ne " IP del Servidor: " && msg -ama "    $ip_publica"
-  msg -ne " Usuario: " && msg -ama "            $nomeuser"
-  msg -ne " Contraseña: " && msg -ama "         $senhauser"
-  msg -ne " Dias de Duracion: " && msg -ama "   $diasuser"
-  msg -ne " Limite de Conexion: " && msg -ama " $limiteuser"
-  msg -ne " Fecha de Expiracion: " && msg -ama "$(date "+%F" -d " + $diasuser days")"
+  msg -ne " ${a47:-IP del Servidor}: " && msg -ama "    $ip_publica"
+  msg -ne " ${a48:-Usuario}: " && msg -ama "            $nomeuser"
+  msg -ne " ${a49:-Contraseña}: " && msg -ama "         $senhauser"
+  msg -ne " ${a50:-Dias de Duracion}: " && msg -ama "   $diasuser"
+  msg -ne " ${a44:-Limite de Conexion}: " && msg -ama " $limiteuser"
+  msg -ne " ${a51:-Fecha de Expiracion}: " && msg -ama "$(date "+%F" -d " + $diasuser days")"
   enter
 }
 
@@ -585,7 +617,7 @@ new_user(){
 #======= CONFIGURACION UDPSERVER ========
 
 download_udpServer(){
-	msg -nama '        Descargando binario UDPserver .....'
+	msg -nama "        ${a30:-Descargando binario UDPserver} ....."
 	if wget -O /usr/bin/udpServer 'https://bitbucket.org/iopmx/udprequestserver/downloads/udpServer' &>/dev/null ; then
 		chmod +x /usr/bin/udpServer
 		msg -verd 'OK'
@@ -621,7 +653,7 @@ RestartSec=3s
 WantedBy=multi-user.target6
 EOF
 
-	msg -nama '        Ejecutando servicio UDPserver .....'
+	msg -nama "        ${a31:-Ejecutando servicio UDPserver} ....."
 	systemctl start UDPserver &>/dev/null
 	if [[ $(systemctl is-active UDPserver) = 'active' ]]; then
 		msg -verd 'OK'
@@ -631,71 +663,35 @@ EOF
 	fi
 }
 
-exclude(){
-  title 'Excluir puertos UDP'
-  print_center -ama 'UDPserver cubre el rango total de puertos.'
-  print_center -ama 'puedes excluir puertos UDP'
-  msg -bar3
-  print_center -ama 'Ejemplos de puertos a excluir:'
-  print_center -ama 'dnstt (slowdns) udp 53 5300'
-  print_center -ama 'wireguard udp 51820'
-  print_center -ama 'openvpn udp 1194'
-  msg -bar
-  print_center -verd 'ingresa los puertos separados por espacios'
-  print_center -verd 'Ejemplo: 53 5300 51820 1194'
-  msg -bar3
-  in_opcion_down 'digita puertos o enter saltar'
-  del 2
-  tmport=($opcion)
-  for (( i = 0; i < ${#tmport[@]}; i++ )); do
-    num=$((${tmport[$i]}))
-    if [[ $num -gt 0 ]]; then
-      echo "$(msg -ama " Puerto a excluir >") $(msg -azu "$num") $(msg -verd "OK")"
-      Port+=" $num"
-    else
-      msg -verm2 " No es un puerto > ${tmport[$i]}?"
-      continue
-    fi
-  done
-
-  if [[ -z $Port ]]; then
-    unset Port
-    print_center -ama 'no se excluyeron puertos'
-  else
-    Port=" -exclude=$(echo "$Port"|sed "s/ /,/g"|sed 's/,//')"
-  fi
-  msg -bar3
-}
-
 install_UDP(){
-	title 'INSTALACION UDPserver'
+	title "${a16:-INSTALACION UDPserver}"
   exclude
 	download_udpServer
 	if [[ $(type -p udpServer) ]]; then
 		make_service
 		msg -bar3
 		if [[ $(systemctl is-active UDPserver) = 'active' ]]; then
-			print_center -verd 'instalacion completa'
+			print_center -verd "${a17:-instalacion completa}"
 		else
-			print_center -verm2 'falla al ejecutar el servicio'
+			print_center -verm2 "${a18:-falla al ejecutar el servicio}"
 		fi
 	else
 		echo
-		print_center -ama 'Falla al descargar el binario udpServer'
+		print_center -ama "${a19:-Falla al descargar el binario udpServer}"
 	fi
 	enter	
 }
 
 uninstall_UDP(){
-	title 'DESINTALADOR UDPserver'
-	read -rp " $(msg -ama "QUIERE DISINSTALAR UDPserver? [S/N]:") " -e -i S UNINS
-	[[ $UNINS != @(S|s) ]] && return
+	title "${a32:-DESINTALADOR UDPserver}"
+	read -rp " $(msg -ama "${a33:-QUIERE DISINSTALAR UDPserver? [S/N]}:") " -e -i S UNINS
+	[[ $UNINS != @(Y|y|S|s) ]] && return
 	systemctl stop UDPserver &>/dev/null
 	systemctl disable UDPserver &>/dev/null
 	rm -rf /etc/systemd/system/UDPserver.service
 	rm -rf /usr/bin/udpServer
 	del 1
-	print_center -ama "desinstalacion completa!"
+	print_center -ama "${a34:-desinstalacion completa!}"
 	enter
 }
 
@@ -703,14 +699,14 @@ reset(){
 	if [[ $(systemctl is-active UDPserver) = 'active' ]]; then
 		systemctl stop UDPserver &>/dev/null
 		systemctl disable UDPserver &>/dev/null
-		print_center -ama 'UDPserver detenido!'
+		print_center -ama "${a35:-UDPserver detenido!}"
 	else
 		systemctl start UDPserver &>/dev/null
 		if [[ $(systemctl is-active UDPserver) = 'active' ]]; then
 			systemctl enable UDPserver &>/dev/null
-			print_center -verd 'UDPserver iniciado!'
+			print_center -verd "${a36:-UDPserver iniciado!}"
 		else
-			print_center -verm2 'falla al inciar UDPserver!'
+			print_center -verm2 "${a37:-falla al inciar UDPserver!}"
 		fi	
 	fi
 	enter
@@ -719,48 +715,84 @@ reset(){
 #==========================================
 
 QUIC_SCRIPT(){
-	title 'DESINSTALADOR SCRIPT UDPserver'
-	read -rp " $(msg -ama "QUIERE DISINSTALAR EL SCRIPT UDPserver? [S/N]:") " -e -i N UNINS
-	[[ $UNINS != @(S|s) ]] && return
+	title "${a38:-DESINSTALADOR SCRIPT UDPserver}"
+	read -rp " $(msg -ama "${a39:-QUIERE DISINSTALAR EL SCRIPT UDPserver? [S/N]}:") " -e -i N UNINS
+	[[ $UNINS != @(Y|y|S|s) ]] && return
 	systemctl disable UDPserver &>/dev/null
 	systemctl stop UDPserver &>/dev/null
 	rm /etc/systemd/system/UDPserver.service
 	rm /usr/bin/udpServer
 	rm /usr/bin/udp
 	rm -rf $udp_file
-	title 'DESINSTALACION COMPLETA'
+	title "${a40:-DESINSTALACION COMPLETA}"
 	time_reboot 10
 }
 
-add_exclude(){
-  title 'Excluir puertos UDP'
-  print_center -ama 'UDPserver cubre el rango total de puertos.'
-  print_center -ama 'puedes excluir puertos UDP'
+exclude(){
+  title "${a20:-Excluir puertos UDP}"
+  print_center -ama "${a21:-UDPserver cubre el rango total de puertos.}"
+  print_center -ama "${a22:-puedes excluir puertos UDP}"
   msg -bar3
-  print_center -ama 'Ejemplos de puertos a excluir:'
-  print_center -ama 'dnstt (slowdns) udp 53 5300'
-  print_center -ama 'wireguard udp 51820'
-  print_center -ama 'openvpn udp 1194'
+  print_center -ama "${a23:-Ejemplos de puertos a excluir}:"
+  print_center -ama "dnstt (slowdns) udp 53 5300"
+  print_center -ama "wireguard udp 51820"
+  print_center -ama "openvpn udp 1194"
   msg -bar
-  print_center -verd 'ingresa los puertos separados por espacios'
-  print_center -verd 'Ejemplo: 53 5300 51820 1194'
-  in_opcion_down 'Ingresa puertos o enter para canselar'
+  print_center -verd "${a24:-ingresa los puertos separados por espacios}"
+  print_center -verd "${a25:-Ejemplo}: 53 5300 51820 1194"
+  msg -bar3
+  in_opcion_down "${a26:-digita puertos o enter saltar}"
+  del 2
+  tmport=($opcion)
+  for (( i = 0; i < ${#tmport[@]}; i++ )); do
+    num=$((${tmport[$i]}))
+    if [[ $num -gt 0 ]]; then
+      echo "$(msg -ama " ${a27:-Puerto a excluir} >") $(msg -azu "$num") $(msg -verd "OK")"
+      Port+=" $num"
+    else
+      msg -verm2 " ${a28:-No es un puerto} > ${tmport[$i]}?"
+      continue
+    fi
+  done
+
+  if [[ -z $Port ]]; then
+    unset Port
+    print_center -ama "${a29:-no se excluyeron puertos}"
+  else
+    Port=" -exclude=$(echo "$Port"|sed "s/ /,/g"|sed 's/,//')"
+  fi
+  msg -bar3
+}
+
+add_exclude(){
+  title "${a20:-Excluir puertos UDP}"
+  print_center -ama "${a21:-UDPserver cubre el rango total de puertos.}"
+  print_center -ama "${a22:-puedes excluir puertos UDP}"
+  msg -bar3
+  print_center -ama "${a23:-Ejemplos de puertos a excluir}:"
+  print_center -ama "dnstt (slowdns) udp 53 5300"
+  print_center -ama "wireguard udp 51820"
+  print_center -ama "openvpn udp 1194"
+  msg -bar
+  print_center -verd "${a24:-ingresa los puertos separados por espacios}"
+  print_center -verd "${a25:-Ejemplo}: 53 5300 51820 1194"
+  in_opcion_down "${a26:-digita puertos o enter saltar}"
   del 4
   tmport=($opcion)
   unset Port
   for (( i = 0; i < ${#tmport[@]}; i++ )); do
     num=$((${tmport[$i]}))
     if [[ $num -gt 0 ]]; then
-      echo "$(msg -ama " Puerto a excluir >") $(msg -azu "$num") $(msg -verd "OK")"
+      echo "$(msg -ama " ${a27:-Puerto a excluir} >") $(msg -azu "$num") $(msg -verd "OK")"
       Port+=" $num"
     else
-      msg -verm2 " No es un puerto > ${tmport[$i]}?"
+      msg -verm2 " ${a28:-No es un puerto} > ${tmport[$i]}?"
       continue
     fi
   done
   if [[ $Port = "" ]]; then
     unset Port
-    print_center -ama 'no se excluyeron puertos'
+    print_center -ama "${a29:-no se excluyeron puertos}"
   else
     exclude=$(cat /etc/systemd/system/UDPserver.service|grep 'exclude')
     if systemctl is-active UDPserver &>/dev/null; then
@@ -785,7 +817,7 @@ add_exclude(){
 }
 
 quit_exclude(){
-  title 'QUITAR PUERTO DE EXCLUCION'
+  title "${a88:-QUITAR PUERTO DE EXCLUCION}"
   exclude=$(cat /etc/systemd/system/UDPserver.service|grep 'exclude'|awk '{print $4}')
   ports=($port)
   for (( i = 0; i < ${#ports[@]}; i++ )); do
@@ -795,11 +827,11 @@ quit_exclude(){
   if [[ ! ${#ports[@]} = 1 ]]; then
     let a++
     msg -bar
-    echo "             $(msg -verd "[0]") $(msg -verm2 ">") $(msg -bra "\033[1;41mVOLVER")  $(msg -verd "[$a]") $(msg -verm2 '> QUITAR TODOS')"
+    echo "             $(msg -verd "[0]") $(msg -verm2 ">") $(msg -bra "\033[1;41m${a89:-VOLVER}")  $(msg -verd "[$a]") $(msg -verm2 "> ${a90:-QUITAR TODOS}")"
     msg -bar
   else
     msg -bar
-    echo "             $(msg -verd "[0]") $(msg -verm2 ">") $(msg -bra "\033[1;41mVOLVER")"
+    echo "             $(msg -verd "[0]") $(msg -verm2 ">") $(msg -bra "\033[1;41m${a89:-VOLVER}")"
     msg -bar
   fi
   opcion=$(selection_fun $a)
@@ -811,13 +843,13 @@ quit_exclude(){
   fi
   if [[ $opcion = $a ]]; then
     sed -i "s/$exclude //" /etc/systemd/system/UDPserver.service
-    print_center -ama 'Se quito todos los puertos excluidos'
+    print_center -ama "${a91:-Se quito todos los puertos excluidos}"
   else
     let opcion--
     unset Port
     for (( i = 0; i < ${#ports[@]}; i++ )); do
       [[ $i = $opcion ]] && continue
-      echo "$(msg -ama " Puerto a excluir >") $(msg -azu "${ports[$i]}") $(msg -verd "OK")"
+      echo "$(msg -ama " ${a27:-Puerto a excluir} >") $(msg -azu "${ports[$i]}") $(msg -verd "OK")"
       Port+=" ${ports[$i]}"
     done
     Port=$(echo $Port|sed 's/ /,/g')
@@ -831,7 +863,7 @@ quit_exclude(){
 }
 
 menu_udp(){
-	title 'SCRIPT DE CONFIGRACION UDPserver BY @Rufu99'
+	title "${a1:-SCRIPT DE CONFIGRACION UDPserver} BY @Rufu99"
 	print_center -ama 'UDPserver Binary by team newtoolsworks'
 	print_center -ama 'UDPclient Android SocksIP'
 	msg -bar
@@ -840,7 +872,7 @@ menu_udp(){
     port=$(cat /etc/systemd/system/UDPserver.service|grep 'exclude')
     if [[ ! $port = "" ]]; then
       port=$(echo $port|awk '{print $4}'|cut -d '=' -f2|sed 's/,/ /g')
-      print_center -ama "PUERTOS EXCLUIDOS $port"
+      print_center -ama "${a2:-PUERTOS EXCLUIDOS} $port"
       msg -bar
     fi
     ram=$(printf '%-8s' "$(free -m | awk 'NR==2{printf "%.2f%%", $3*100/$2 }')")
@@ -853,28 +885,30 @@ menu_udp(){
 		else
 			estado="\e[1m\e[31m[OFF]"
 		fi
-		echo " $(msg -verd "[1]") $(msg -verm2 '>') $(msg -verm2 'DESINSTALAR UDPserver')"
-		echo -e " $(msg -verd "[2]") $(msg -verm2 '>') $(msg -azu 'INICIAR/DETENER UDPserver') $estado"
-    echo " $(msg -verd "[3]") $(msg -verm2 '>') $(msg -azu 'REOMOVER SCRIPT')"
+		echo " $(msg -verd "[1]") $(msg -verm2 '>') $(msg -verm2 "${a3:-DESINSTALAR UDPserver}")"
+		echo -e " $(msg -verd "[2]") $(msg -verm2 '>') $(msg -azu "${a4:-INICIAR/DETENER UDPserver}") $estado"
+    echo " $(msg -verd "[3]") $(msg -verm2 '>') $(msg -azu "${a5:-REOMOVER SCRIPT}")"
 		msg -bar3
-		echo " $(msg -verd "[4]") $(msg -verm2 '>') $(msg -verd 'CREAR CLIENTE')"
-		echo " $(msg -verd "[5]") $(msg -verm2 '>') $(msg -verm2 'REMOVER CLIENTE')"
-		echo " $(msg -verd "[6]") $(msg -verm2 '>') $(msg -ama 'RENOVAR CLIENTE')"
-		echo " $(msg -verd "[7]") $(msg -verm2 '>') $(msg -azu 'BLOQUEAR/DESBLOQUEAR CLIENTE')"
-		echo " $(msg -verd "[8]") $(msg -verm2 '>') $(msg -blu 'DETELLES DE LOS CLIENTES')"
-		echo " $(msg -verd "[9]") $(msg -verm2 '>') $(msg -azu 'LIMITADO DE CUENTAS')"
-		msg -bar3
-    print_center -ama 'EXCLUCION DE PUERTO'
+    echo " $(msg -verd "[4]") $(msg -verm2 '>') $(msg -azu "IDIOMA/LANGUAGE")"
     msg -bar3
-    echo " $(msg -verd "[10]") $(msg -verm2 '>') $(msg -verd 'AGREGAR PUERTO A LISTA DE EXCLUSION')"
-		num=10
+		echo " $(msg -verd "[5]") $(msg -verm2 '>') $(msg -verd "${a6:-CREAR CLIENTE}")"
+		echo " $(msg -verd "[6]") $(msg -verm2 '>') $(msg -verm2 "${a7:-REMOVER CLIENTE}")"
+		echo " $(msg -verd "[7]") $(msg -verm2 '>') $(msg -ama "${a8:-RENOVAR CLIENTE}")"
+		echo " $(msg -verd "[8]") $(msg -verm2 '>') $(msg -azu "${a9:-BLOQUEAR/DESBLOQUEAR CLIENTE}")"
+		echo " $(msg -verd "[9]") $(msg -verm2 '>') $(msg -blu "${a10:-DETELLES DE LOS CLIENTES}")"
+		echo " $(msg -verd "[10]") $(msg -verm2 '>') $(msg -azu "${a11:-LIMITADO DE CUENTAS}")"
+		msg -bar3
+    print_center -ama "${a12:-EXCLUCION DE PUERTO}"
+    msg -bar3
+    echo " $(msg -verd "[11]") $(msg -verm2 '>') $(msg -verd "${a13:-AGREGAR PUERTO A LISTA DE EXCLUSION}")"
+		num=11
     if [[ ! $port = "" ]]; then
-      echo " $(msg -verd "[11]") $(msg -verm2 '>') $(msg -verm2 'QUITAR PUERTO A LISTA DE EXCLUSION')"
-      num=11
+      echo " $(msg -verd "[12]") $(msg -verm2 '>') $(msg -verm2 "${a14:-QUITAR PUERTO A LISTA DE EXCLUSION}")"
+      num=12
     fi
     a=x; b=1
 	else
-		echo " $(msg -verd "[1]") $(msg -verm2 '>') $(msg -verd 'INSTALAR UDPserver')"
+		echo " $(msg -verd "[1]") $(msg -verm2 '>') $(msg -verd "${a15:-INSTALAR UDPserver}")"
 		num=1; a=1; b=x
 	fi
 	back
@@ -885,14 +919,15 @@ menu_udp(){
 		$b)uninstall_UDP;;
 		2)reset;;
     3)QUIC_SCRIPT;;
-		4)new_user;;
-		5)remove_user;;
-		6)renew_user;;
-		7)block_user;;
-		8)detail_user;;
-		9)limiter;;
-    10)add_exclude;;
-    11)quit_exclude;;
+    4)idioam_lang; exit;;
+		5)new_user;;
+		6)remove_user;;
+		7)renew_user;;
+		8)block_user;;
+		9)detail_user;;
+		10)limiter;;
+    11)add_exclude;;
+    12)quit_exclude;;
 		0)return 1;;
 	esac
 }
@@ -900,3 +935,4 @@ menu_udp(){
 while [[  $? -eq 0 ]]; do
   menu_udp
 done
+
